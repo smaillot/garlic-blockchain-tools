@@ -58,12 +58,11 @@ def get_block(block_hash):
     block = send_request('getblock', {'hash': block_hash})
     return json.loads(block)
 
-def get_rawtransaction(txid, decrypt):
-    """ Returns raw transaction representation for given transaction id. decrypt can be set to 0(false) or 1(true).
-        Not working
+def get_rawtransaction(txid):
+    """ Returns raw transaction representation for given transaction id.
     """
-    transaction = send_request('getrawtransaction', {'txid': txid, 'decrypt': decrypt})
-    return transaction
+    transaction = send_request('getrawtransaction?txid=' + txid + '&decrypt=1')
+    return json.loads(transaction)
 
 def get_networkhashps():
     """ Returns the current network hashrate. (hash/s)
@@ -86,8 +85,8 @@ def get_distribution():
 def get_address(address_hash):
     """ Returns information for given address.
     """
-    address = send_request('getaddress', address_hash, type='ext', get=0)
-    return address
+    address = send_request('getaddress', [address_hash], type='ext', get=0)
+    return json.loads(address)
 
 def get_balance(address_hash):
     """ Returns current balance of given address.
