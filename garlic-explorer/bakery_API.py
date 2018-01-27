@@ -23,7 +23,7 @@ def send_request_bakery(function, parameters={}, type='api', get=1):
     output = np.nan
     if response.status_code == 200:
         # if the server responds correctly
-        output = response.content
+        output = response.content.decode('utf-8')
     return output
 
 def extract_exchanges(dct):
