@@ -23,12 +23,14 @@ def send_request_bakery(function, parameters={}, type='api', get=1):
     if response.status_code == 200:
         # if the server responds correctly
         output = response.content
-    return output    
+    return output
 
 def extract_exchanges(dct):
     """ Extracts every addresses and value from a vin or vout dict
     """
-    exchanges = [[dct[i]['scriptPubKey']['addresses'][0], dct[i]['value']] for i in range(len(dct)) if 'addresses' in [x[0] for x in dct[i]['scriptPubKey'].items()]]
+    exchanges = [dct[i] for i in range(len(dct)) if 'scriptPubKey' in [x[0] for x in dct[i].items()]]
+    if exchanges != []:
+        exchanges = [[exchanges[i]['scriptPubKey']['addresses'][0], exchanges[i]['value']] for i in range(len(exchanges)) if 'addresses' in [x[0] for x in exchanges[i]['scriptPubKey'].items()]]
     return exchanges
 
 def extract_transactions(block_hash):
