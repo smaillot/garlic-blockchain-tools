@@ -1,5 +1,8 @@
 from __future__ import division
-import bakery_API
+from bakery_API import *
+import numpy as np
+import matplotlib.pylab as plt
+import json
 
 
 def check_address_tx(addresses, tx):
@@ -29,9 +32,13 @@ def check_address_tx(addresses, tx):
         
     return received
 
-def search_transactions(addresses, start=0, end=-1):
+def search_transactions(addresses, start=0, end=-1, saving=100):
     """ Read all blockchain from begining to list transactions where this address appears
     """
+    def save_history(hist, block=''):
+        with open('data_' + str(block) + '.json', 'w') as outfile:
+            json.dump(json.dumps(hist), outfile)
+    
     if end == -1:
         end = get_blockcount()
         
@@ -39,6 +46,8 @@ def search_transactions(addresses, start=0, end=-1):
     hist = []
     n_blocks = end - start
     for i in range(start, end):
+        if np.mod(i-start, saving) == 0:
+            save_history(hist, i)
         print('block ' + str(i) + ' (' + str(i-start+1) + '/' + str(n_blocks) + ')')
         txs = extract_transactions(get_block_hash(i))
         n_tx = len(txs)
@@ -48,6 +57,8 @@ def search_transactions(addresses, start=0, end=-1):
             if transactions != []:
                 print('\t\t' + str(transactions))
                 hist += transactions
+                
+    save_history(hist, end)
     return hist        
     
 def plot_history(history):
