@@ -11,9 +11,11 @@ def check_address_tx(addresses, tx):
             amount exchanged in this transaction
     """
     transaction = get_rawtransaction(tx)
-    time = transaction['blocktime']
+    received = {}
     
     if transaction != {}:
+        
+        time = transaction['blocktime']
         # check if address is a sender
             ## doesn't currently work
             # vin = transaction['vin']
@@ -35,14 +37,23 @@ def search_transactions(addresses, start=0, end=-1):
         
     height = get_blockcount()
     hist = []
+    n_blocks = end - start
     for i in range(start, end):
-        print(i)
+        print('block ' + str(i) + ' (' + str(i-start+1) + '/' + str(n_blocks) + ')')
         txs = extract_transactions(get_block_hash(i))
-        for tx in txs:
-            #print('\t'+tx)
-            transactions = check_address_tx(addresses, tx)
+        n_tx = len(txs)
+        for j in range(n_tx):
+            print('\ttransaction ' + str(j+1) + '/' + str(n_tx))
+            transactions = check_address_tx(addresses, txs[j])
             if transactions != []:
-                print('\t\t'+str(transactions))
-            hist += transactions
+                print('\t\t' + str(transactions))
+                hist += transactions
     return hist        
     
+def plot_history(history):
+    """ Plot the evolution of total coins according to time.
+    """
+    history = np.array(history)
+    times = [datetime.datetime.fromtimestamp(t['time']) for t in hist]
+    coins = np.cumsum([t['value'] for t in hist])
+    plt.plot_date(times, coins, '-b')
