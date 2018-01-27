@@ -6,7 +6,7 @@
 import requests
 import json
 
-def send_request(function, parameters={}, type='api', get=1):
+def send_request_bakery(function, parameters={}, type='api', get=1):
     """ Sends request to bakery API.
         inputs:
             function: name (ex. getdifficulty)
@@ -45,26 +45,26 @@ def get_transaction_time(txid):
 def get_difficulty():
     """ Returns the current difficulty.
     """
-    difficulty = send_request('getdifficulty')
+    difficulty = send_request_bakery('getdifficulty')
     return double(difficulty)
 
 def get_connectioncount():
     """ Returns the number of connections the block explorer has to other nodes.
     """
-    connection_count = send_request('getconnectioncount')
+    connection_count = send_request_bakery('getconnectioncount')
     return int(connection_count)
 
 def get_blockcount():
     """ Returns the current block index.
     """
-    block_count = send_request('getblockcount')
+    block_count = send_request_bakery('getblockcount')
     return int(block_count)
 
 def get_block_hash(index):
     """ Returns the hash of the block at ; index 0 is the genesis block.
         input: block index
     """
-    block_hash = send_request('getblockhash', {'index': index})
+    block_hash = send_request_bakery('getblockhash', {'index': index})
     return block_hash
 
 def get_block(block_hash):
@@ -72,13 +72,13 @@ def get_block(block_hash):
         input: block hash
         ouput: block information
     """
-    block = send_request('getblock', {'hash': block_hash})
+    block = send_request_bakery('getblock', {'hash': block_hash})
     return json.loads(block)
 
 def get_rawtransaction(txid):
     """ Returns raw transaction representation for given transaction id.
     """
-    transaction = send_request('getrawtransaction?txid=' + txid + '&decrypt=1')
+    transaction = send_request_bakery('getrawtransaction?txid=' + txid + '&decrypt=1')
     
     if transaction != 'There was an error. Check your console.':
         # if no error
@@ -89,31 +89,31 @@ def get_rawtransaction(txid):
 def get_networkhashps():
     """ Returns the current network hashrate. (hash/s)
     """
-    hash_rate = send_request('getnetworkhashps')
+    hash_rate = send_request_bakery('getnetworkhashps')
     return double(hash_rate)
 
 def get_moneysupply():
     """ Returns current money supply.
     """
-    money_supply = send_request('getmoneysupply', type='ext')
+    money_supply = send_request_bakery('getmoneysupply', type='ext')
     return double(money_supply)
 
 def get_distribution():
     """ Returns wealth distribution stats.
     """
-    distribution = send_request('getdistribution', type='ext')
+    distribution = send_request_bakery('getdistribution', type='ext')
     return json.loads(distribution)
 
 def get_address(address_hash):
     """ Returns information for given address.
     """
-    address = send_request('getaddress', [address_hash], type='ext', get=0)
+    address = send_request_bakery('getaddress', [address_hash], type='ext', get=0)
     return json.loads(address)
 
 def get_balance(address_hash):
     """ Returns current balance of given address.
     """
-    balance = send_request('getbalance', [address_hash], type='ext', get=0)
+    balance = send_request_bakery('getbalance', [address_hash], type='ext', get=0)
     return balance
 
 def get_lasttxs(count, min_tx):
@@ -124,5 +124,5 @@ def get_lasttxs(count, min_tx):
             count: number of tx ton return
             min_tx: min tx to return
     """
-    balance = send_request('getlasttxs', [str(count), str(min_tx)], type='ext', get=0)
+    balance = send_request_bakery('getlasttxs', [str(count), str(min_tx)], type='ext', get=0)
     return json.loads(balance)
