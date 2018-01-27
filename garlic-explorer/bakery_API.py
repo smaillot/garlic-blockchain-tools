@@ -25,6 +25,23 @@ def send_request(function, parameters={}, type='api', get=1):
         output = response.content
     return output    
 
+def extract_exchanges(dct):
+    """ Extracts every addresses and value from a vin or vout dict
+    """
+    exchanges = [[dct[i]['scriptPubKey']['addresses'][0], dct[i]['value']] for i in range(len(dct)) if 'addresses' in [x[0] for x in dct[i]['scriptPubKey'].items()]]
+    return exchanges
+
+def extract_transactions(block_hash):
+    """ Returns transactions list found in a block.
+    """
+    transactions = [t for t in get_block(block_hash)['tx']]
+    return transactions        
+
+def get_transaction_time(txid):
+    """ Returns transaction time.
+    """
+    return get_rawtransaction(txid)['blocktime']
+
 def get_difficulty():
     """ Returns the current difficulty.
     """
@@ -62,7 +79,12 @@ def get_rawtransaction(txid):
     """ Returns raw transaction representation for given transaction id.
     """
     transaction = send_request('getrawtransaction?txid=' + txid + '&decrypt=1')
-    return json.loads(transaction)
+    
+    if transaction != 'There was an error. Check your console.':
+        # if no error
+        return json.loads(transaction)
+    else:
+        return {}
 
 def get_networkhashps():
     """ Returns the current network hashrate. (hash/s)
