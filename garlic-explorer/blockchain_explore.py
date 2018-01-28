@@ -64,8 +64,7 @@ def search_transactions(addresses, start=0, end=-1, history='[]', saving=100):
             print('\ttransaction ' + str(j+1) + '/' + str(n_tx))
             transactions = check_address_tx(addresses, txs[j])
             if transactions != []:
-                # print('\t\t' + str(transactions))
-                print('transaction found ! (' + transactions['address'] + ': ' + transactions['value'] + ')')
+                print('\t\t' + str(transactions))
                 history += transactions
                 
     save_history(history, end)
@@ -103,18 +102,24 @@ def live_plot():
     addresses = np.load('./addresses/addresses.npy')
     print('Updating history...\n\n')
     history = search_transactions(addresses, last, history=history)
-    last = history['last']
+    last = history['blockheight']
     history = history['history']
     print('History up to date.')
     
-    series = np.load('addresses/series')
+    with open('./addresses/series.json', 'r') as series_file:
+        series = json.load(series_file)
     
     while 1:
         
         clf()
         plot_history(history, series)
-        sleep(60)
-        search_transactions(addresses, last, history=history)
+        history = json.dumps(history)
+        #sleep(60)
+        print('Updating history...\n\n')
+        history = search_transactions(addresses, last, history=history)
+        last = history['blockheight']
+        history = history['history']
+        print('History up to date.')
         
 if __name__ ==  '__main__':
     
