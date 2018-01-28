@@ -32,7 +32,7 @@ def check_address_tx(addresses, tx):
         
     return received
 
-def search_transactions(addresses, start=0, end=-1, saving=100):
+def search_transactions(addresses, start=0, end=-1, history='[]', saving=100):
     """ Read all blockchain from begining to list transactions where this address appears
     """
     def save_history(hist, block=''):
@@ -43,11 +43,11 @@ def search_transactions(addresses, start=0, end=-1, saving=100):
         end = get_blockcount()
         
     height = get_blockcount()
-    hist = []
+    history = json.loads(history)
     n_blocks = end - start
     for i in range(start, end):
         if np.mod(i-start, saving) == 0:
-            save_history(hist, i)
+            save_history(history, i)
         print('block ' + str(i) + ' (' + str(i-start+1) + '/' + str(n_blocks) + ')')
         txs = extract_transactions(get_block_hash(i))
         n_tx = len(txs)
@@ -56,15 +56,15 @@ def search_transactions(addresses, start=0, end=-1, saving=100):
             transactions = check_address_tx(addresses, txs[j])
             if transactions != []:
                 print('\t\t' + str(transactions))
-                hist += transactions
+                history += transactions
                 
-    save_history(hist, end)
-    return hist        
+    save_history(history, end)
+    return history        
     
 def plot_history(history):
     """ Plot the evolution of total coins according to time.
     """
     history = np.array(history)
-    times = [datetime.datetime.fromtimestamp(t['time']) for t in hist]
-    coins = np.cumsum([t['value'] for t in hist])
+    times = [datetime.datetime.fromtimestamp(t['time']) for t in history]
+    coins = np.cumsum([t['value'] for t in history])
     plt.plot_date(times, coins, '-b')
