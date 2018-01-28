@@ -65,7 +65,7 @@ def search_transactions(addresses, start=0, end=-1, history='[]', saving=100):
             transactions = check_address_tx(addresses, txs[j])
             if transactions != []:
                 # print('\t\t' + str(transactions))
-                print('transaction found ! (' + transaction['address'] + ': ' + transaction['value'] + ')')
+                print('transaction found ! (' + transactions['address'] + ': ' + transactions['value'] + ')')
                 history += transactions
                 
     save_history(history, end)

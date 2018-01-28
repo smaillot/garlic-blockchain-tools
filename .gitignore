@@ -1,5 +1,5 @@
 .vscode
 **/__pycache__/
 **/*.pyc
-garlic-explorer/data/*.json
+garlic-explorer/data/**
 garlic-explorer/addresses/**
