@@ -3,6 +3,9 @@ from bakery_API import *
 import numpy as np
 import matplotlib.pylab as plt
 import json
+from os import listdir
+from os.path import isfile, join
+from time import sleep
 
 
 def check_address_tx(addresses, tx):
@@ -32,11 +35,17 @@ def check_address_tx(addresses, tx):
         
     return received
 
+def data_file_name(n_block):
+    return 'data_' + str(n_block) + '.json'
+    
+def extract_block_number(filename):
+    return int(filename.split('_')[1].split('.')[0])   
+
 def search_transactions(addresses, start=0, end=-1, history='[]', saving=100):
     """ Read all blockchain from begining to list transactions where this address appears
     """
     def save_history(hist, block=''):
-        with open('data_' + str(block) + '.json', 'w') as outfile:
+        with open('./data/' + data_file_name(block), 'w') as outfile:
             json.dump(json.dumps(hist), outfile)
     
     if end == -1:
@@ -55,16 +64,58 @@ def search_transactions(addresses, start=0, end=-1, history='[]', saving=100):
             print('\ttransaction ' + str(j+1) + '/' + str(n_tx))
             transactions = check_address_tx(addresses, txs[j])
             if transactions != []:
-                print('\t\t' + str(transactions))
+                # print('\t\t' + str(transactions))
+                print('transaction found ! (' + transaction['address'] + ': ' + transaction['value'] + ')')
                 history += transactions
                 
     save_history(history, end)
-    return history        
+    return {'history': history, 'blockheight': end}
     
-def plot_history(history):
+def plot_history(history, series={}):
     """ Plot the evolution of total coins according to time.
     """
     history = np.array(history)
-    times = [datetime.datetime.fromtimestamp(t['time']) for t in history]
-    coins = np.cumsum([t['value'] for t in history])
-    plt.plot_date(times, coins, '-b')
+    series['total'] = np.unique([t['address'] for t in history])
+    
+    def get_serie(addresses, history):
+        hist = [t for t in history if t['address'] in addresses]
+        times = [datetime.datetime.fromtimestamp(t['time']) for t in hist]
+        coins = np.cumsum([t['value'] for t in hist])
+        return {'times': times, 'coins': coins}
+       
+    ax = plt.subplot(111)
+    for s in series:
+        serie = get_serie(series[s], history)
+        plt.plot_date(serie['times'], serie['coins'], '-', linewidth=2)
+    plt.legend([s for s in series])
+    
+    return ax
+
+def live_plot():
+    
+    datafiles = [extract_block_number(f) for f in listdir('./data') if isfile(join('./data', f)) and f.split('.')[-1] == 'json' and f.split('_')[0] == 'data']
+    last = np.max(datafiles)
+    last_file = data_file_name(last)
+    
+    with open('./data/' + last_file, 'r') as data_file:
+        history = json.load(data_file)
+        
+    addresses = np.load('./addresses/addresses.npy')
+    print('Updating history...\n\n')
+    history = search_transactions(addresses, last, history=history)
+    last = history['last']
+    history = history['history']
+    print('History up to date.')
+    
+    series = np.load('addresses/series')
+    
+    while 1:
+        
+        clf()
+        plot_history(history, series)
+        sleep(60)
+        search_transactions(addresses, last, history=history)
+        
+if __name__ ==  '__main__':
+    
+    live_plot()
