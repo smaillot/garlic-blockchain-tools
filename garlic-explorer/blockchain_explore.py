@@ -3,8 +3,7 @@ from bakery_API import *
 import numpy as np
 import matplotlib.pylab as plt
 import json
-from os import listdir
-from os import mkdir
+from os import listdir, mkdir
 from os.path import isfile, join
 import shutil
 from time import sleep
@@ -79,13 +78,13 @@ def data_file_name(n_block):
 def extract_block_number(filename):
     return int(filename.split('_')[1].split('.')[0])   
 
-def search_transactions(addresses, start=0, end=-1, history='[]', saving=100):
+def search_transactions(addresses, start=3600, end=-1, history='[]', saving=100):
     """ Read all blockchain from begining to list transactions where this address appears
     """
     
     def save_history(hist, block=''):
         shutil.rmtree('./data') 
-        os.mkdir('./data')
+        mkdir('./data')
         with open('./data/' + data_file_name(block), 'w') as outfile:
             json.dump(json.dumps(hist), outfile)
     
@@ -134,7 +133,7 @@ def plot_history(history, series={}):
 def load_history():
 
     datafiles = [extract_block_number(f) for f in listdir('./data') if isfile(join('./data', f)) and f.split('.')[-1] == 'json' and f.split('_')[0] == 'data']
-    last = 0
+    last = 3600
     if datafiles != []:
         last = np.max(datafiles)
         last_file = data_file_name(last)
@@ -146,10 +145,8 @@ def load_history():
         history = '[]'
     
     return [history, last]
-            
-                       
 
-def live_plot():
+def update_history():
     
     print('Loading history...')
     [history, last] = load_history() 
@@ -162,6 +159,13 @@ def live_plot():
     last = history['blockheight']
     history = history['history']
     print('History up to date.')
+    
+    return [history, last, addresses, series]
+       
+def live_plot():
+    
+    update_history()
+    [history, last, addresses, series] = update_history()
     
     while 1:
         
@@ -177,4 +181,5 @@ def live_plot():
         
 if __name__ ==  '__main__':
     
-    live_plot()
+    load_history()
+    # live_plot()
