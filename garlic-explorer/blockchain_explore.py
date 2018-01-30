@@ -46,7 +46,7 @@ def check_address_tx(addresses, tx):
             i = 1
             # check one of the addresses is a receiver
             for t in vin:
-                if 'txid' in t.items():
+                if 'txid' in [it[0] for it in t.items()]:
                     print('\t\t\t' + str(i))
                     txid = t['txid']
                     transaction = get_rawtransaction(txid)
@@ -167,7 +167,6 @@ def update_history():
        
 def live_plot():
     
-    update_history()
     [history, last, addresses, series] = update_history()
     
     while 1:
