@@ -106,6 +106,7 @@ def get_rawtransaction(txid):
     """
     transaction = send_request_bakery('getrawtransaction?txid=' + txid + '&decrypt=1')
     
+    tx = {}
     if transaction != 'There was an error. Check your console.':
         # if no error
         try:
@@ -113,7 +114,7 @@ def get_rawtransaction(txid):
         except:
             tx = {}
     
-    return {}
+    return tx
     
 def get_networkhashps():
     """ Returns the current network hashrate. (hash/s)

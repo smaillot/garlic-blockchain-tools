@@ -78,12 +78,14 @@ def data_file_name(n_block):
 def extract_block_number(filename):
     return int(filename.split('_')[1].split('.')[0])   
 
-def search_transactions(addresses, start=3600, end=-1, history='[]', saving=100):
+def search_transactions(addresses, start=3710, end=-1, history='[]', saving=100):
     """ Read all blockchain from begining to list transactions where this address appears
     """
     
     def save_history(hist, block=''):
-        shutil.rmtree('./data') 
+        
+        if 'data' in listdir('.'):
+            shutil.rmtree('./data') 
         mkdir('./data')
         with open('./data/' + data_file_name(block), 'w') as outfile:
             json.dump(json.dumps(hist), outfile)
@@ -133,7 +135,8 @@ def plot_history(history, series={}):
 def load_history():
 
     datafiles = [extract_block_number(f) for f in listdir('./data') if isfile(join('./data', f)) and f.split('.')[-1] == 'json' and f.split('_')[0] == 'data']
-    last = 3600
+    last = 3710
+    
     if datafiles != []:
         last = np.max(datafiles)
         last_file = data_file_name(last)
@@ -181,5 +184,12 @@ def live_plot():
         
 if __name__ ==  '__main__':
     
-    load_history()
-    # live_plot()
+    if 'addresses' in listdir('.'):
+        if 'addresses.npy' in listdir('./addresses') and 'series.json' in listdir('./addresses'):
+            update_history()
+            # live_plot()
+        else:
+            print('Please place addresses.npy and series.json in the \'addresses\' folder')
+    else:
+        mkdir('./addresses')
+        print('Please place addresses.npy and series.json in a \'addresses\' folder')
