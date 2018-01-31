@@ -49,7 +49,7 @@ def check_address_tx(addresses, tx):
                 if 'txid' in [it[0] for it in t.items()]:
                     print('\t\t\t' + str(i))
                     txid = t['txid']
-                    time = t['blocktime']
+                    time = transaction['time']
                     transaction = get_rawtransaction(txid)
                     n_vout = t['vout']
                     vout = transaction['vout'][n_vout]
@@ -146,9 +146,9 @@ def load_history():
             history = json.load(data_file)
                 
     else:
-        history = '[]'
+        history = []
     
-    return [json.loads(history), last]
+    return [history, last]
 
 def update_history():
     
