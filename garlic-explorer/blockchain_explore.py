@@ -49,10 +49,11 @@ def check_address_tx(addresses, tx):
                 if 'txid' in [it[0] for it in t.items()]:
                     print('\t\t\t' + str(i))
                     txid = t['txid']
+                    time = t['blocktime']
                     transaction = get_rawtransaction(txid)
                     n_vout = t['vout']
                     vout = transaction['vout'][n_vout]
-                    senders.append({'time': transaction['blocktime'], 'address': vout['scriptPubKey']['addresses'][0], 'value': -vout['value']})
+                    senders.append({'time': time, 'address': vout['scriptPubKey']['addresses'][0], 'value': -vout['value']})
                     i += 1
             
         return senders
@@ -147,13 +148,13 @@ def load_history():
     else:
         history = '[]'
     
-    return [history, last]
+    return [json.loads(history), last]
 
 def update_history():
     
     print('Loading history...')
     [history, last] = load_history() 
-    print('Opening addresses files...')
+    print('Importing addresses...')
     addresses = np.load('./addresses/addresses.npy')
     with open('./addresses/series.json', 'r') as series_file:
         series = json.load(series_file)
