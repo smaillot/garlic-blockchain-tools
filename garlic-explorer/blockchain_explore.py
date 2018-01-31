@@ -146,9 +146,9 @@ def load_history():
             history = json.load(data_file)
                 
     else:
-        history = '[]'
+        history = []
     
-    return [json.loads(history), last]
+    return [history, last]
 
 def update_history():
     
