@@ -90,12 +90,14 @@ def search_transactions(addresses, start=3710, end=-1, history='[]', saving=100)
             shutil.rmtree(datadir + '/data') 
         mkdir(datadir + '/data')
         with open(datadir + '/data/' + data_file_name(block), 'w') as outfile:
-            json.dump(json.dumps(hist), outfile)
+            json.dump(hist, outfile)
     
     if end == -1:
         end = get_blockcount()
         
     height = get_blockcount()
+    if not type(history) == unicode:
+        history = json.dumps(history)
     history = json.loads(history)
     n_blocks = end - start
     for i in range(start, end):
@@ -181,7 +183,7 @@ def live_update(time=60):
     
     while 1:
         
-        history = search_transactions(addresses, last, history=json.dumps(history))
+        history = search_transactions(addresses, last, history=history)
         last = history['blockheight']
         history = history['history']
         print('\n'*5 + 'History updated to block ' + str(last) + '\n' + 'Waiting for ' + str(time) + 's')
