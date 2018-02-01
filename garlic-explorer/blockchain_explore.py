@@ -3,7 +3,7 @@ from bakery_API import *
 import numpy as np
 import matplotlib.pylab as plt
 import json
-from os import listdir, mkdir
+from os import listdir, mkdir, remove
 from os.path import isfile, join
 import shutil
 from time import sleep
@@ -80,14 +80,18 @@ def data_file_name(n_block):
 def extract_block_number(filename):
     return int(filename.split('_')[1].split('.')[0])   
 
-def search_transactions(addresses, start=3710, end=-1, history='[]', saving=100):
+def search_transactions(addresses, start=3710, end=-1, history=[], saving=100):
     """ Read all blockchain from begining to list transactions where this address appears
     """
     
     def save_history(hist, block='', datadir='.'):
         
         if 'data' in listdir(datadir):
-            shutil.rmtree(datadir + '/data') 
+            for f in listdir(datadir + '/data'):
+                s = f.split('.')
+                if len(s) > 1:
+                    if s[1] == 'json' and s[0].split('_') == 'data':
+                        remove(f)
         mkdir(datadir + '/data')
         with open(datadir + '/data/' + data_file_name(block), 'w') as outfile:
             json.dump(hist, outfile)
@@ -96,9 +100,8 @@ def search_transactions(addresses, start=3710, end=-1, history='[]', saving=100)
         end = get_blockcount()
         
     height = get_blockcount()
-    if not type(history) == unicode:
-        history = json.dumps(history)
-    history = json.loads(history)
+    if type(history) == unicode:
+        history = json.loads(history)
     n_blocks = end - start
     for i in range(start, end):
         if np.mod(i-start, saving) == 0:
