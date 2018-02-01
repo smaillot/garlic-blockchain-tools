@@ -166,6 +166,25 @@ def update_history():
     print('History up to date.')
     
     return [history, last, addresses, series]
+
+def live_update(time=60):
+    
+    print('Loading history...')
+    [history, last] = load_history() 
+    print('Last block saved: ' + str(last))
+    print('Importing addresses...')
+    addresses = np.load('./addresses/addresses.npy')
+    with open('./addresses/series.json', 'r') as series_file:
+        series = json.load(series_file)
+    print('\nStart updating:\n')
+    
+    while 1:
+        
+        history = search_transactions(addresses, last, history=history)
+        last = history['blockheight']
+        history = history['history']
+        print('\n'*5 + 'waiting for ' + str(time) + 's')
+        sleep(time)
        
 def live_plot():
     
