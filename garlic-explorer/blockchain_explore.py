@@ -8,6 +8,7 @@ from os.path import isfile, join
 import shutil
 from time import sleep
 
+datadir = '/users/promo2017/smaillot/html/visible'
 
 def check_address_tx(addresses, tx):
     """ Search for the address in transaction tx
@@ -85,10 +86,10 @@ def search_transactions(addresses, start=3710, end=-1, history='[]', saving=100)
     
     def save_history(hist, block=''):
         
-        if 'data' in listdir('.'):
-            shutil.rmtree('./data') 
-        mkdir('./data')
-        with open('./data/' + data_file_name(block), 'w') as outfile:
+        if 'data' in listdir(datadir):
+            shutil.rmtree(datadir + '/data') 
+        mkdir(datadir + '/data')
+        with open(datadir + '/data/' + data_file_name(block), 'w') as outfile:
             json.dump(json.dumps(hist), outfile)
     
     if end == -1:
@@ -135,14 +136,14 @@ def plot_history(history, series={}):
 
 def load_history():
 
-    datafiles = [extract_block_number(f) for f in listdir('./data') if isfile(join('./data', f)) and f.split('.')[-1] == 'json' and f.split('_')[0] == 'data']
+    datafiles = [extract_block_number(f) for f in listdir(datadir + '/data') if isfile(join(datadir + '/data', f)) and f.split('.')[-1] == 'json' and f.split('_')[0] == 'data']
     last = 3710
     
     if datafiles != []:
         last = np.max(datafiles)
         last_file = data_file_name(last)
         
-        with open('./data/' + last_file, 'r') as data_file:
+        with open(datadir + '/data/' + last_file, 'r') as data_file:
             history = json.load(data_file)
                 
     else:
