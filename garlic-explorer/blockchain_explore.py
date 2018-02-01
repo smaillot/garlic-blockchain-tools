@@ -75,7 +75,7 @@ def check_address_tx(addresses, tx):
     return stacked
 
 def data_file_name(n_block):
-    return 'data_' + str(n_block) + '.json'
+    return 'data' + '_'*(n_block != '') + str(n_block) + '.json'
     
 def extract_block_number(filename):
     return int(filename.split('_')[1].split('.')[0])   
@@ -84,7 +84,7 @@ def search_transactions(addresses, start=3710, end=-1, history='[]', saving=100)
     """ Read all blockchain from begining to list transactions where this address appears
     """
     
-    def save_history(hist, block=''):
+    def save_history(hist, block='', datadir='.'):
         
         if 'data' in listdir(datadir):
             shutil.rmtree(datadir + '/data') 
@@ -112,6 +112,7 @@ def search_transactions(addresses, start=3710, end=-1, history='[]', saving=100)
                 history += transactions
                 
     save_history(history, end)
+    save_history(history, datadir=datadir)
     return {'history': history, 'blockheight': end}
     
 def plot_history(history, series={}):
@@ -136,14 +137,14 @@ def plot_history(history, series={}):
 
 def load_history():
 
-    datafiles = [extract_block_number(f) for f in listdir(datadir + '/data') if isfile(join(datadir + '/data', f)) and f.split('.')[-1] == 'json' and f.split('_')[0] == 'data']
+    datafiles = [extract_block_number(f) for f in listdir('.' + '/data') if isfile(join('.' + '/data', f)) and f.split('.')[-1] == 'json' and f.split('_')[0] == 'data']
     last = 3710
     
     if datafiles != []:
         last = np.max(datafiles)
         last_file = data_file_name(last)
         
-        with open(datadir + '/data/' + last_file, 'r') as data_file:
+        with open('.' + '/data/' + last_file, 'r') as data_file:
             history = json.load(data_file)
                 
     else:
@@ -180,10 +181,10 @@ def live_update(time=60):
     
     while 1:
         
-        history = search_transactions(addresses, last, history=history)
+        history = search_transactions(addresses, last, history=json.dumps(history))
         last = history['blockheight']
         history = history['history']
-        print('\n'*5 + 'waiting for ' + str(time) + 's')
+        print('\n'*5 + 'History updated to block ' + str(last) + '\n' + 'Waiting for ' + str(time) + 's')
         sleep(time)
        
 def live_plot():
@@ -206,7 +207,7 @@ if __name__ ==  '__main__':
     
     if 'addresses' in listdir('.'):
         if 'addresses.npy' in listdir('./addresses') and 'series.json' in listdir('./addresses'):
-            update_history()
+            live_update()
             # live_plot()
         else:
             print('Please place addresses.npy and series.json in the \'addresses\' folder')
