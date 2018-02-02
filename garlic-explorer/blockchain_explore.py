@@ -8,7 +8,7 @@ from os.path import isfile, join
 import shutil
 from time import sleep
 
-datadir = '/users/promo2017/smaillot/html/visible'
+datadir = '/users/promo2017/smaillot/html/visible/garlic'
 
 def check_address_tx(addresses, tx):
     """ Search for the address in transaction tx
@@ -90,9 +90,10 @@ def search_transactions(addresses, start=3710, end=-1, history=[], saving=100):
             for f in listdir(datadir + '/data'):
                 s = f.split('.')
                 if len(s) > 1:
-                    if s[1] == 'json' and s[0].split('_') == 'data':
-                        remove(f)
-        mkdir(datadir + '/data')
+                    if s[1] == 'json' and s[0].split('_')[0] == 'data':
+                        remove(datadir + '/data/' + f)
+        else:
+            mkdir(datadir + '/data')
         with open(datadir + '/data/' + data_file_name(block), 'w') as outfile:
             json.dump(hist, outfile)
     
