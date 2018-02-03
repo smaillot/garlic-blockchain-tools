@@ -31,89 +31,106 @@
 
 		function addData(data) 
 		{
+			$.getJSON("./series.json", function(wallets){	
 
-			var processedData =  $.map(data, function(el) 
-				{ 
-					if (["GarLiNeRDTZD2rFy9EtNBq3sqK8QFfXaZV", "GQzoSdXKPSixTvsjogyizMv2yAB9TyxYZE", "GStePHAf67QGjHrqERtWCVwyadQzyd44c9", "GaRLinerd9kRsG23zEY8uXXZGbmwCHekzr", "GNiRiNA38CLP3Q4epr5sotZeEpFYsE6GCj", "GarLinerDG3DbH6XGEP4TGZcWrnyTbnhND"].indexOf(el.address) > -1)
+				var stackedData = [];	
+
+				for (wallet in wallets)
+				{	
+
+					var processedData =  $.map(data, function(el) 
+						{ 
+							if (wallets[wallet].indexOf(el.address) > -1)
+							{
+								return [el.value] 
+							}
+						});
+
+					var timeData =  $.map(data, function(el) 
+						{ 
+							if (wallets[wallet].indexOf(el.address) > -1)
+							{
+								return [el.time] 
+							}
+						});
+
+					processedData = cumsum(processedData);
+
+					for (var i = 0; i < processedData.length; i++)
 					{
-						return [el.value] 
+						processedData[i] = [timeData[i], processedData[i]];
+					}
+
+					stackedData.push({
+						name: wallet,
+						data: processedData
+					});
+
+				}
+
+				Highcharts.setOptions(
+				{
+					global: 
+					{
+						useUTC: false
 					}
 				});
 
-			processedData = cumsum(processedData);
-
-			for (var i = 0; i < processedData.length; i++)
-			{
-				processedData[i] = [data[i].time, processedData[i]];
-			}
-
-			Highcharts.setOptions(
-			{
-				global: 
+				// Create the chart
+				Highcharts.stockChart('container', 
 				{
-					useUTC: false
-				}
-			});
-
-			// Create the chart
-			Highcharts.stockChart('container', 
-			{
-				chart: 
-				{
-					events: 
+					chart: 
 					{
-						load: function () 
+						events: 
 						{
-			                // some fancy random bullshit at the end
-			                var series = this.series[0];
-			                setInterval(function () 
-			                {
-			                    var x = (new Date()).getTime(), // current time
-			                    	y = Math.round(Math.random() * 100);
-			                    series.addPoint([x, y], true, true);
-			                }, 1000);
-			            }
-			        }
-			    },
+							load: function () 
+							{
+				                // // some fancy random bullshit at the end
+				                // var series = this.series[0];
+				                // setInterval(function () 
+				                // {
+				                //     var x = (new Date()).getTime(), // current time
+				                //     	y = Math.round(Math.random() * 100);
+				                //     series.addPoint([x, y], true, true);
+				                // }, 1000);
+				            }
+				        }
+				    },
 
-			    rangeSelector: 
-			    {
-			    	buttons: 
-			    	[{
-			    		count: 1,
-			    		type: 'minute',
-			    		text: '1M'
-			    	}, 
-			    	{
-			    		count: 5,
-			    		type: 'minute',
-			    		text: '5M'
-			    	}, 
-			    	{
-			    		type: 'all',
-			    		text: 'All'
-			    	}],
-			    	inputEnabled: false,
-			    	selected: 0
-			    },
+				    rangeSelector: 
+				    {
+				    	buttons: 
+				    	[{
+				    		count: 1,
+				    		type: 'minute',
+				    		text: '1M'
+				    	}, 
+				    	{
+				    		count: 5,
+				    		type: 'minute',
+				    		text: '5M'
+				    	}, 
+				    	{
+				    		type: 'all',
+				    		text: 'All'
+				    	}],
+				    	inputEnabled: false,
+				    	selected: 0
+				    },
 
-			    title: 
-			    {
-			    	text: 'Live garlinerd wallets balance'
-			    },
+				    title: 
+				    {
+				    	text: 'Live garlinerd wallets balance'
+				    },
 
-			    exporting: 
-			    {
-			    	enabled: false
-			    },
+				    exporting: 
+				    {
+				    	enabled: false
+				    },
 
-			    series: 
-			    [{
-			    	name: 'Balance',
-			    	data: processedData
-			    }]
+				    series: stackedData
+				});
 			});
-
 		}
 
 	</script>
