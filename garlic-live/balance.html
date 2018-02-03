@@ -9,9 +9,10 @@
 <body>
 	<script src="./highstock/code/highstock.js"></script>
 	<script src="./highstock/code/modules/exporting.js"></script>
+	<script src="./highstock/code/js/themes/dark-unica.js"></script>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
 
-	<div id="container" style="height: 100%; min-width: 100%"></div>
+	<div id="container" style="height: 720px; min-width: 100%"></div>
 
 	<script type="text/javascript">
 
@@ -50,7 +51,7 @@
 						{ 
 							if (wallets[wallet].indexOf(el.address) > -1)
 							{
-								return [el.time] 
+								return [el.time * 1000] 
 							}
 						});
 
@@ -61,9 +62,38 @@
 						processedData[i] = [timeData[i], processedData[i]];
 					}
 
+					var param = {
+						'total': {
+							'type': 'area',
+							'color': 'white'
+						},
+						'guillaume': {
+							'type': 'spline',
+							'color': 'white'
+						},
+						'stephane': {
+							'type': 'spline',
+							'color': 'white'
+						},
+						'valentin': {
+							'type': 'spline',
+							'color': 'white'
+						},
+						'nirina': {
+							'type': 'spline',
+							'color': 'white'
+						},
+						'nicolas': {
+							'type': 'spline',
+							'color': 'white'
+						}
+					}
+
 					stackedData.push({
 						name: wallet,
-						data: processedData
+						type: param[wallet].type,
+						data: processedData,
+						color: param[wallet].color
 					});
 
 				}
@@ -81,6 +111,8 @@
 				{
 					chart: 
 					{
+						zoomType: 'x',
+
 						events: 
 						{
 							load: function () 
@@ -101,18 +133,23 @@
 				    {
 				    	buttons: 
 				    	[{
-				    		count: 1,
-				    		type: 'minute',
-				    		text: '1M'
-				    	}, 
-				    	{
-				    		count: 5,
-				    		type: 'minute',
-				    		text: '5M'
-				    	}, 
-				    	{
 				    		type: 'all',
 				    		text: 'All'
+				    	},
+				    	{
+				    		count: 1,
+				    		type: 'day',
+				    		text: 'day'
+				    	},
+				    	{
+				    		count: 7,
+				    		type: 'day',
+				    		text: 'week'
+				    	}, 
+				    	{
+				    		count: 1,
+				    		type: 'month',
+				    		text: 'month'
 				    	}],
 				    	inputEnabled: false,
 				    	selected: 0
@@ -123,10 +160,65 @@
 				    	text: 'Live garlinerd wallets balance'
 				    },
 
+				    subtitle: {
+		                text: document.ontouchstart === undefined ?
+		                        'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+		            },
+
+		            xAxis: {
+		                type: 'datetime'
+		            },
+
+		            yAxis: {
+		                title: {
+		                    text: 'Balance'
+		                }
+		            },
+
+		            legend: {
+                		enabled: false
+            		},
+
 				    exporting: 
 				    {
 				    	enabled: false
 				    },
+
+				    plotOptions: {
+				    	spline: {
+				    		lineWidth: 1,
+				    		states: {
+				    			hover: {
+				    				lineWidth: 2
+				    			}
+				    		}
+				    	},
+
+		                area: {
+		                    fillColor: {
+		                        linearGradient: {
+		                            x1: 0,
+		                            y1: 0,
+		                            x2: 0,
+		                            y2: 1
+		                        },
+		                        stops: [
+		                            [0.2, Highcharts.getOptions().colors[1]],
+		                            [1, Highcharts.Color(Highcharts.getOptions().colors[2]).setOpacity(0).get('rgba')]
+		                        ]
+		                    },
+		                    marker: {
+		                        radius: 2
+		                    },
+		                    lineWidth: 0,
+		                    states: {
+		                        hover: {
+		                            lineWidth: 4
+		                        }
+		                    },
+		                    threshold: null
+		                }
+		            },
 
 				    series: stackedData
 				});
